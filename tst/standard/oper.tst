@@ -3378,8 +3378,7 @@ Error, the 3rd argument <edge2> must be an edge of the digraph <D>
 gap> D := DigraphByEdges(IsMutableDigraph, [[1, 2], [2, 1], [3, 4], [4, 3], [1, 3], [3, 1], [2, 4], [4, 2]]);
 <mutable digraph with 4 vertices, 8 edges>
 gap> DigraphInsertEdge(D, [1, 2], [1, 2]);
-Error, the 2nd and 3rd argument <edge1> and <edge2> must be two different edge\
-s
+Error, the 2nd and 3rd argument <edge1> and <edge2> must be distinct edges
 
 # DigraphInsertEdge: standard insertion (mutable digraph D)
 gap> D := DigraphByEdges(IsMutableDigraph, [[1, 2], [2, 1], [3, 4], [4, 3], [1, 3], [3, 1], [2, 4], [4, 2]]);

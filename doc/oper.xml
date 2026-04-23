@@ -2037,7 +2037,7 @@ true
   <Description>
     If <A>edge</A> is a pair of vertices of <A>digraph</A>, or <A>src</A> and
     <A>ran</A> are vertices of <A>digraph</A>, where <A>ran</A> &lt;&gt; <A>src</A>, 
-    then then this operation merges the two vertices of the edge given into one. 
+    then this operation merges the two vertices of the edge given into one. 
     Edges incident to <A>src</A> and <A>ran</A> will now be incident to <C>v</C>, 
     the new vertex, with their direction preserved. <P/>
     
@@ -2083,13 +2083,13 @@ gap> DigraphVertexLabels(D);
   <Returns>A digraph.</Returns>
   <Description>
     If <A>edge1</A> and <A>edge2</A> are distinct pairs of vertices of <A>digraph</A>,
-    then then this operation inserts a new edge between <A>edge1</A> and
+    then this operation inserts a new edge between <A>edge1</A> and
     <A>edge2</A>.
     <A>edge1</A> and <A>edge2</A> are split up into two new edges each, which are
     all adjacent to the inserted edge. Hence, the vertices of the inserted edge both
-    have a degree of 3.
+    have a degree of 3.<P/>
 
-    The opposite operation is <Ref Oper="DigraphReduceEdge"/>.
+    The opposite operation is <Ref Oper="DigraphReduceEdge"/>.<P/>
 
     A new digraph constructed from <A>digraph</A> is returned,
     unless <A>digraph</A> belongs to <Ref Filt="IsMutableDigraph"/>;
@@ -2125,9 +2125,9 @@ gap> DigraphEdges(D2);
     If <A>edge</A> is an edge of <A>digraph</A> and adjacent to four edges, then this
     operation reduces this <A>edge</A>: <A>edge</A> will be removed, and for both
     vertices of <A>edge</A> the two adjacent edges are combined to a single edge.
-    The vertices of <A>edge</A> must both have a degree of 3.
+    The vertices of <A>edge</A> must both have a degree of 3.<P/>
 
-    The opposite operation is <Ref Oper="DigraphInsertEdge"/>.
+    The opposite operation is <Ref Oper="DigraphInsertEdge"/>.<P/>
 
     A new digraph constructed from <A>digraph</A> is returned,
     unless <A>digraph</A> belongs to <Ref Filt="IsMutableDigraph"/>;

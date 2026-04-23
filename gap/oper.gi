@@ -603,46 +603,39 @@ function(D, edge)
   return DigraphContractEdge(D, edge[1], edge[2]);
 end);
 
-DIGRAPHS_CheckInsertEdgeDigraph := function(D, edge1, edge2)
-  if IsEmptyDigraph(D) then
-    ErrorNoReturn("the 1st argument <D> must not be an empty digraph");
-  fi;
-  if not IsSymmetricDigraph(D) then
-    ErrorNoReturn("the 1st argument <D> must be a symmetric digraph");
-  fi;
-
-  if Length(edge1) <> 2 then
-    ErrorNoReturn("the 2nd argument <edge1> must be a list of length 2");
-  fi;
-  if not IsDigraphEdge(D, edge1) then
-    ErrorNoReturn("the 2nd argument <edge1> must be an edge of the ",
-                  "digraph <D>");
-  fi;
-
-  if Length(edge2) <> 2 then
-    ErrorNoReturn("the 3rd argument <edge2> must be a list of length 2");
-  fi;
-  if not IsDigraphEdge(D, edge2) then
-    ErrorNoReturn("the 3rd argument <edge2> must be an edge of the ",
-                  "digraph <D>");
-  fi;
-
-  if Length(Union(edge1, edge2)) < 3 then
-    ErrorNoReturn("the 2nd and 3rd argument <edge1> and <edge2> must ",
-                  "be two different edges");
-  fi;
-
-end;
-
 InstallMethod(DigraphInsertEdge,
 "for a symmetric digraph and two dense lists",
 [IsMutableDigraph, IsDenseList, IsDenseList],
 function(D, edge1, edge2)
   local numVertices;
 
-  DIGRAPHS_CheckInsertEdgeDigraph(D, edge1, edge2);
+  if IsEmptyDigraph(D) then
+    ErrorNoReturn("the 1st argument <D> must not be an empty digraph");
+  elif not IsSymmetricDigraph(D) then
+    ErrorNoReturn("the 1st argument <D> must be a symmetric digraph");
+  elif IsMultiDigraph(D) then
+    ErrorNoReturn("The 1st argument <D> must not satisfy IsMultiDigraph");
+  fi;
 
-  numVertices := Maximum(DigraphVertices(D));
+  if Length(edge1) <> 2 then
+    ErrorNoReturn("the 2nd argument <edge1> must be a list of length 2");
+  elif not IsDigraphEdge(D, edge1) then
+    ErrorNoReturn("the 2nd argument <edge1> must be an edge of the ",
+                  "digraph <D>");
+  fi;
+  if Length(edge2) <> 2 then
+    ErrorNoReturn("the 3rd argument <edge2> must be a list of length 2");
+  elif not IsDigraphEdge(D, edge2) then
+    ErrorNoReturn("the 3rd argument <edge2> must be an edge of the ",
+                  "digraph <D>");
+  fi;
+
+  if Length(Union(edge1, edge2)) < 3 then
+    ErrorNoReturn("the 2nd and 3rd argument <edge1> and <edge2> must ",
+                  "be distinct edges");
+  fi;
+
+  numVertices := DigraphNrVertices(D);
 
   D := DigraphRemoveEdge(D, edge1);
   D := DigraphRemoveEdge(D, Reversed(edge1));
@@ -681,34 +674,32 @@ end);
 InstallMethod(DigraphInsertEdge,
 "for a symmetric digraph and two dense lists",
 [IsImmutableDigraph, IsDenseList, IsDenseList],
-function(D, edge1, edge2)
-  D := DigraphInsertEdge(DigraphMutableCopy(D), edge1, edge2);
+{D, edge1, edge2} -> MakeImmutable(DigraphInsertEdge(
+              DigraphMutableCopy(D), edge1, edge2)));
 
-  return MakeImmutable(D);
-end);
-
-DIGRAPHS_CheckReduceEdgeDigraph := function(D, edge)
+InstallMethod(DigraphReduceEdge,
+"for a symmetric digraph and a dense list",
+[IsMutableDigraph, IsDenseList],
+function(D, edge)
   local leftVertexOutNeighbours, rightVertexOutNeighbours,
-        allVertexOutNeighbours;
+        allVertexOutNeighbours, neighbours, neighbour, newEdge;
 
   if IsEmptyDigraph(D) then
     ErrorNoReturn("the 1st argument <D> must not be an empty digraph");
-  fi;
-  if not IsSymmetricDigraph(D) then
+  elif not IsSymmetricDigraph(D) then
     ErrorNoReturn("the 1st argument <D> must be a symmetric digraph");
+  elif IsMultiDigraph(D) then
+    ErrorNoReturn("The 1st argument <D> must not satisfy IsMultiDigraph");
   fi;
 
   if Length(edge) <> 2 then
     ErrorNoReturn("the 2nd argument <edge> must be a list of length 2");
-  fi;
-  if not IsDigraphEdge(D, edge) then
+  elif not IsDigraphEdge(D, edge) then
     ErrorNoReturn("the 2nd argument <edge> must be an edge of the digraph <D>");
   fi;
 
   leftVertexOutNeighbours := OutNeighboursOfVertex(D, edge[1]);
   rightVertexOutNeighbours := OutNeighboursOfVertex(D, edge[2]);
-  allVertexOutNeighbours := Union(leftVertexOutNeighbours,
-                                  rightVertexOutNeighbours);
 
   # Check if edge vertices have degree three
   if Length(leftVertexOutNeighbours) <> 3 or
@@ -716,27 +707,21 @@ DIGRAPHS_CheckReduceEdgeDigraph := function(D, edge)
     ErrorNoReturn("the 2nd argument <edge> must be an edge where the ",
                   "incident vertices have degree three");
   fi;
+
+  allVertexOutNeighbours := Union(leftVertexOutNeighbours,
+                                  rightVertexOutNeighbours);
+
   if not Length(allVertexOutNeighbours) in [5, 6] then
     ErrorNoReturn("the 2nd argument <edge> must be an edge where the ",
                   "incident vertices have a maximum of one common ",
                   "neighbour");
   fi;
 
-end;
-
-InstallMethod(DigraphReduceEdge,
-"for a symmetric digraph and a dense list",
-[IsMutableDigraph, IsDenseList],
-function(D, edge)
-  local neighbours, neighbour, newEdge;
-
-  DIGRAPHS_CheckReduceEdgeDigraph(D, edge);
-
   # Add new edges
   #
   # left side of edge
   newEdge := [];
-  neighbours := OutNeighboursOfVertex(D, edge[1]);
+  neighbours := leftVertexOutNeighbours;
   for neighbour in neighbours do
     if neighbour <> edge[2] then
       Add(newEdge, neighbour);
@@ -774,11 +759,8 @@ end);
 InstallMethod(DigraphReduceEdge,
 "for a symmetric digraph and a dense list",
 [IsImmutableDigraph, IsDenseList],
-function(D, edge)
-  D := DigraphReduceEdge(DigraphMutableCopy(D), edge);
-
-  return MakeImmutable(D);
-end);
+{D, edge} -> MakeImmutable(DigraphReduceEdge(DigraphMutableCopy(D), edge))
+);
 
 #############################################################################
 # 3. Ways of combining digraphs
